@@ -83,6 +83,7 @@ button.refresh:focus-visible,a:focus-visible{outline:2px solid var(--sun);outlin
 .date .w{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-faint);font-weight:600}
 .place .city{font-size:16px;font-weight:650;letter-spacing:-.01em}
 .place .note{font-size:12px;color:var(--ink-soft);margin-top:1px}
+.place .hourly{font-size:11.5px;color:var(--wet);margin-top:2px}
 .place .alt{font-size:11.5px;color:var(--ink-faint);margin-top:2px}
 
 /* barre de température : échelle commune 0–30 °C */
@@ -182,7 +183,8 @@ button.refresh:focus-visible,a:focus-visible{outline:2px solid var(--sun);outlin
     <span class="chip"><span class="swatch" style="background:#2A6C8F"></span>Pluie</span>
     <span class="chip"><span class="swatch" style="background:#A83C34"></span>Orage ou vent fort</span>
   </div>
-  <p>La barre de température est à échelle commune de 0 à 30&nbsp;°C&nbsp;: la longueur du trait donne l'amplitude jour/nuit, sa position donne le niveau. Le vent affiché est la vitesse moyenne maximale du jour, la valeur entre parenthèses les rafales. Au-delà de 60&nbsp;km/h de rafales, certains ferries de fjord peuvent être perturbés.</p>
+  <p>La barre de température est à échelle commune de 0 à 30&nbsp;°C&nbsp;: la longueur du trait donne l'amplitude jour/nuit, sa position donne le niveau. C'est le min/max sur toute la journée, pas la météo à une heure donnée. Le vent affiché est la vitesse moyenne maximale du jour, la valeur entre parenthèses les rafales. Au-delà de 60&nbsp;km/h de rafales, certains ferries de fjord peuvent être perturbés.</p>
+  <p>La ligne <span style="color:var(--wet);font-weight:600">◷ à Xh</span>, quand elle apparaît, donne la météo prévue précisément à l'heure d'arrivée, de départ ou de ferry indiquée dans la note du jour — plus utile que le min/max journalier pour savoir comment s'habiller à ce moment-là. Elle n'apparaît que si ce jour est dans l'horizon de prévision.</p>
   <p>Les jours au-delà de l'horizon de prévision (16&nbsp;jours) affichent les <b>normales d'août</b>, en grisé. Ce sont des ordres de grandeur, pas une prévision&nbsp;: ils se remplaceront tout seuls par la vraie prévision au fil des jours, à chaque ouverture de cette page.</p>
   <p>Les localités de fjord (Hellesylt, Geiranger, Valldal, Romarheim) sont en fond de vallée encaissée&nbsp;: les modèles y lissent le relief, la pluie réelle peut être sensiblement plus forte que la valeur affichée, et le soleil arriver plus tard le matin.</p>
 </div>
@@ -213,34 +215,34 @@ const H=0,AA=1,HI=2,VO=3,HE=4,LO=5,HS=6,GE=7,VA=8,AN=9,AL=10,MA=11,RO=12,BE=13,F
 
 const SEGMENTS = [
   {t:"Aller — Paris, Hambourg, Jutland", days:[
-    {d:"2026-08-01", loc:H,  note:"Arrivée 17h29 · soirée Alster"},
-    {d:"2026-08-02", loc:AA, note:"Train le matin · Aarhus à partir de 15h08"},
-    {d:"2026-08-03", loc:AA, alt:HI, altLabel:"Hirtshals, embarquement 20h00", note:"Matinée Aarhus · ferry le soir"}
+    {d:"2026-08-01", loc:H,  note:"Arrivée 17h29 · soirée Alster", hour:{h:17,m:29}},
+    {d:"2026-08-02", loc:AA, note:"Train le matin · Aarhus à partir de 15h08", hour:{h:15,m:8}},
+    {d:"2026-08-03", loc:AA, alt:HI, altLabel:"Hirtshals, embarquement 20h00", note:"Matinée Aarhus · ferry le soir", altHour:{h:20,m:0}}
   ]},
   {t:"Camping-car — 10 jours dans les fjords", days:[
-    {d:"2026-08-04", loc:VO, alt:BE, altLabel:"Bergen, débarquement 13h00", note:"Nuit à Voss"},
+    {d:"2026-08-04", loc:VO, alt:BE, altLabel:"Bergen, débarquement 13h00", note:"Nuit à Voss", altHour:{h:13,m:0}},
     {d:"2026-08-05", loc:HE, note:"Vikafjellet · ferry Hella-Vangsnes"},
     {d:"2026-08-06", loc:LO, note:"Fjærland, Bøyabreen"},
     {d:"2026-08-07", loc:HS, note:"Loen Skylift · Briksdal"},
-    {d:"2026-08-08", loc:GE, note:"Ferry 08h30 · Geirangerfjord"},
+    {d:"2026-08-08", loc:GE, note:"Ferry 08h30 · Geirangerfjord", hour:{h:8,m:30}},
     {d:"2026-08-09", loc:VA, alt:GE, altLabel:"Geiranger, Dalsnibba le matin", note:"Ferry Eidsdal-Linge"},
     {d:"2026-08-10", loc:AN, note:"Trollstigen · Rampestreken"},
     {d:"2026-08-11", loc:AL, note:"Romsdalen · Ålesund Art nouveau"},
     {d:"2026-08-12", loc:MA, note:"Deux ferries · Sagastad · côte de Vågsøy"},
     {d:"2026-08-13", loc:RO, note:"Journée de transit, deux ferries"},
-    {d:"2026-08-14", loc:BE, note:"Restitution 9h-11h · après-midi Bergen"}
+    {d:"2026-08-14", loc:BE, note:"Restitution 9h-11h · après-midi Bergen", hour:{h:11,m:0}}
   ]},
   {t:"Bergen, Flåm, Oslo", days:[
     {d:"2026-08-15", loc:BE, note:"Journée pleine à Bergen"},
     {d:"2026-08-16", loc:FL, note:"Bergensbanen puis Flåmsbana"},
-    {d:"2026-08-17", loc:OS, alt:FL, altLabel:"Flåm le matin", note:"Arrivée Oslo 19h05"},
+    {d:"2026-08-17", loc:OS, alt:FL, altLabel:"Flåm le matin", note:"Arrivée Oslo 19h05", hour:{h:19,m:5}},
     {d:"2026-08-18", loc:OS, note:"Journée pleine"},
     {d:"2026-08-19", loc:OS, note:"Journée pleine"}
   ]},
   {t:"Retour — Malmö, Hambourg, Paris", days:[
-    {d:"2026-08-20", loc:OS, alt:MO, altLabel:"Malmö en soirée", note:"Matinée Oslo · départ 14h48"},
-    {d:"2026-08-21", loc:H,  note:"Arrivée 05h05 · journée pleine"},
-    {d:"2026-08-22", loc:H,  note:"Matinée puis départ 12h29"}
+    {d:"2026-08-20", loc:OS, alt:MO, altLabel:"Malmö en soirée", note:"Matinée Oslo · départ 14h48", hour:{h:14,m:48}},
+    {d:"2026-08-21", loc:H,  note:"Arrivée 05h05 · journée pleine", hour:{h:5,m:5}},
+    {d:"2026-08-22", loc:H,  note:"Matinée puis départ 12h29", hour:{h:12,m:29}}
   ]}
 ];
 
@@ -277,7 +279,21 @@ const TMIN=0, TMAX=30;
 function pct(v){return Math.max(0,Math.min(100,((v-TMIN)/(TMAX-TMIN))*100));}
 function fmtNum(v,d=0){return v==null?"—":Number(v).toFixed(d).replace(".",",");}
 
-function render(byLoc, meta){
+function hourLabel(hm){return String(hm.h).padStart(2,"0")+"h"+String(hm.m).padStart(2,"0");}
+function hourKey(d,hm){
+  const h=Math.max(0,Math.min(23,Math.round(hm.h+hm.m/60)));
+  return d+"T"+String(h).padStart(2,"0")+":00";
+}
+function hourlyAt(byLocHourly,loc,d,hm){
+  const v=byLocHourly && byLocHourly[loc] ? (byLocHourly[loc][hourKey(d,hm)]||null) : null;
+  return (v && v.code!=null) ? v : null;
+}
+function hourlyLine(hp){
+  const w=WMO[hp.code]||["—"];
+  return `${Math.round(hp.temp)}° · ${w[0].toLowerCase()}`+(hp.pprob!=null?" · "+hp.pprob+"%":"");
+}
+
+function render(byLoc, byLocHourly, meta){
   const host=document.getElementById("days");
   host.innerHTML="";
   const today=new Date().toISOString().slice(0,10);
@@ -309,13 +325,16 @@ function render(byLoc, meta){
         tmax=L.nx; tmin=L.nn; icon=ICONS.cloud;
       }
 
+      const hp=day.hour?hourlyAt(byLocHourly,day.loc,day.d,day.hour):null;
+
       el.className="day r-"+regime+(day.d===today?" today":"");
       el.innerHTML=`
         <div class="date"><div class="d">${dt.getDate()}/8</div><div class="w">${DAYS_FR[dt.getDay()]}</div></div>
         <div class="place">
           <div class="city">${L.n}</div>
           <div class="note">${day.note}</div>
-          ${day.alt!=null?`<div class="alt">↳ ${day.altLabel} · ${altLine(byLoc,day)}</div>`:""}
+          ${hp?`<div class="hourly">◷ à ${hourLabel(day.hour)} : ${hourlyLine(hp)}</div>`:""}
+          ${day.alt!=null?`<div class="alt">↳ ${day.altLabel} · ${altLine(byLoc,byLocHourly,day)}</div>`:""}
         </div>
         <div class="temp">
           <div class="tscale">
@@ -339,7 +358,11 @@ function render(byLoc, meta){
   document.getElementById("horizon").textContent=meta.horizon;
 }
 
-function altLine(byLoc,day){
+function altLine(byLoc,byLocHourly,day){
+  if(day.altHour){
+    const hp=hourlyAt(byLocHourly,day.alt,day.d,day.altHour);
+    if(hp) return `${hourLabel(day.altHour)} : ${hourlyLine(hp)}`;
+  }
   const f=byLoc&&byLoc[day.alt]?byLoc[day.alt][day.d]:null;
   if(!f || f.code==null) return "normale d'août "+LOCS[day.alt].nx+"° / "+LOCS[day.alt].nn+"°";
   const w=WMO[f.code]||["—"];
@@ -357,15 +380,17 @@ async function load(){
     +"?latitude="+lats+"&longitude="+lons
     +"&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,"
     +"precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max"
+    +"&hourly=temperature_2m,weather_code,precipitation_probability"
     +"&forecast_days=16&timezone=auto";
 
   const CACHE="meteo-norvege-2026";
 
   function apply(j,when,offline){
     const byLoc=index(j);
+    const byLocHourly=indexHourly(j);
     const last=j[0].daily.time[j[0].daily.time.length-1];
     const ld=new Date(last+"T12:00:00");
-    render(byLoc,{
+    render(byLoc,byLocHourly,{
       stamp:new Date(when).toLocaleString("fr-FR",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})
         +(offline?" · hors connexion":""),
       horizon:"jusqu'au "+ld.getDate()+" "+ld.toLocaleString("fr-FR",{month:"long"})
@@ -378,6 +403,16 @@ async function load(){
         m[t]={code:d.weather_code[i],tmax:d.temperature_2m_max[i],tmin:d.temperature_2m_min[i],
               prcp:d.precipitation_sum[i],pprob:d.precipitation_probability_max[i],
               wind:d.wind_speed_10m_max[i],gust:d.wind_gusts_10m_max[i]};
+      });
+      return m;
+    });
+  }
+  function indexHourly(j){
+    return j.map(o=>{
+      const m={}; const d=o.hourly;
+      if(!d) return m;
+      d.time.forEach((t,i)=>{
+        m[t]={temp:d.temperature_2m[i],code:d.weather_code[i],pprob:d.precipitation_probability[i]};
       });
       return m;
     });
@@ -400,7 +435,7 @@ async function load(){
       err.innerHTML="<b>Pas de réseau.</b> Affichage du dernier relevé enregistré sur cet appareil. "
         +"Relancez « Actualiser » dès que la connexion revient.";
     }else{
-      render(null,{stamp:"données indisponibles",horizon:"—"});
+      render(null,null,{stamp:"données indisponibles",horizon:"—"});
       err.hidden=false;
       err.innerHTML="<b>Prévisions non chargées.</b> Open-Meteo n'a pas répondu ("+e.message+"). "
         +"Le tableau affiche les normales d'août. Réessayez avec « Actualiser », ou consultez yr.no ville par ville.";
