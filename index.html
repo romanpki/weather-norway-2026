@@ -295,9 +295,9 @@ function render(byLoc, meta){
       const el=document.createElement("div");
 
       let regime="none", icon="", cond="Normale d'août", rain="", tmax, tmin, wind="", gust="", windCls="";
-      let forecast=!!f;
+      let forecast=!!f && f.code!=null;
 
-      if(f){
+      if(forecast){
         const w=WMO[f.code]||["—","cloud","mix"];
         regime=w[2]; icon=ICONS[w[1]]; cond=w[0];
         tmax=f.tmax; tmin=f.tmin;
@@ -341,7 +341,7 @@ function render(byLoc, meta){
 
 function altLine(byLoc,day){
   const f=byLoc&&byLoc[day.alt]?byLoc[day.alt][day.d]:null;
-  if(!f) return "normale d'août "+LOCS[day.alt].nx+"° / "+LOCS[day.alt].nn+"°";
+  if(!f || f.code==null) return "normale d'août "+LOCS[day.alt].nx+"° / "+LOCS[day.alt].nn+"°";
   const w=WMO[f.code]||["—"];
   return `${Math.round(f.tmax)}° / ${Math.round(f.tmin)}° · ${w[0].toLowerCase()} · vent ${Math.round(f.wind)} km/h`;
 }
