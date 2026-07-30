@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Météo du voyage — Norvège, 1–22 août 2026</title>
+<style>
+:root{
+  --ink:#0E1F29;
+  --ink-soft:#3C525E;
+  --ink-faint:#7E9099;
+  --paper:#E9EDEE;
+  --card:#FDFEFE;
+  --line:#CBD5D8;
+  --sun:#D98A1F;
+  --wet:#2A6C8F;
+  --deep:#154A63;
+  --storm:#A83C34;
+  --moss:#5A7A57;
+  --snow:#8FA9B8;
+  --radius:3px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:15px;
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:920px;margin:0 auto;padding:20px 14px 64px}
+
+/* ---------- en-tête ---------- */
+header{border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:6px}
+.eyebrow{
+  font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-faint);font-weight:600;margin:0 0 6px
+}
+h1{
+  margin:0;font-size:30px;line-height:1.03;letter-spacing:-.025em;font-weight:800;
+}
+h1 span{display:block;font-weight:300;color:var(--ink-soft);font-size:19px;letter-spacing:-.01em;margin-top:3px}
+.statusbar{
+  display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;
+  padding:10px 0 16px;border-bottom:1px solid var(--line);margin-bottom:18px;
+  font-size:12.5px;color:var(--ink-soft)
+}
+.statusbar b{color:var(--ink);font-variant-numeric:tabular-nums}
+button.refresh{
+  font:inherit;font-size:12.5px;font-weight:600;
+  background:var(--ink);color:#fff;border:0;border-radius:var(--radius);
+  padding:7px 13px;cursor:pointer;letter-spacing:.01em;margin-left:auto
+}
+button.refresh:hover{background:var(--deep)}
+button.refresh:disabled{opacity:.45;cursor:default}
+button.refresh:focus-visible,a:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
+
+/* ---------- segments ---------- */
+.segment{margin:26px 0 10px;display:flex;align-items:baseline;gap:10px}
+.segment .num{
+  font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--ink-faint);
+  font-variant-numeric:tabular-nums
+}
+.segment h2{margin:0;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.segment .rule{flex:1;height:1px;background:var(--line)}
+
+/* ---------- jour ---------- */
+.day{
+  display:grid;
+  grid-template-columns:64px 1fr 132px 108px 92px;
+  gap:0 14px;align-items:center;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-left:4px solid var(--line);
+  border-radius:var(--radius);
+  padding:10px 14px;margin-bottom:6px;
+}
+.day.today{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.date{font-variant-numeric:tabular-nums;line-height:1.15}
+.date .d{font-size:19px;font-weight:700;letter-spacing:-.02em}
+.date .w{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-faint);font-weight:600}
+.place .city{font-size:16px;font-weight:650;letter-spacing:-.01em}
+.place .note{font-size:12px;color:var(--ink-soft);margin-top:1px}
+.place .alt{font-size:11.5px;color:var(--ink-faint);margin-top:2px}
+
+/* barre de température : échelle commune 0–30 °C */
+.temp{position:relative}
+.tscale{position:relative;height:22px}
+.track{position:absolute;left:0;right:0;top:11px;height:2px;background:#E2E8EA}
+.range{
+  position:absolute;top:8px;height:8px;border-radius:4px;
+  background:linear-gradient(90deg,var(--wet),var(--sun))
+}
+.tlabels{display:flex;justify-content:space-between;font-size:11.5px;font-variant-numeric:tabular-nums;margin-top:-2px}
+.tlabels .min{color:var(--wet);font-weight:600}
+.tlabels .max{color:var(--ink);font-weight:700}
+
+.cond{display:flex;align-items:center;gap:8px}
+.cond svg{flex:0 0 26px;width:26px;height:26px}
+.cond .txt{font-size:12px;line-height:1.25}
+.cond .rain{font-size:11.5px;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+
+.wind{text-align:right;font-variant-numeric:tabular-nums}
+.wind .v{font-size:15px;font-weight:650}
+.wind .u{font-size:10.5px;color:var(--ink-faint);letter-spacing:.06em}
+.wind .g{font-size:11px;color:var(--ink-soft)}
+.wind.strong .v{color:var(--storm)}
+
+.badge{
+  display:inline-block;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  padding:2px 6px;border-radius:2px;background:#DFE6E8;color:var(--ink-soft)
+}
+.pending{color:var(--ink-faint);font-size:12px}
+
+/* accents de régime météo sur le liseré gauche */
+.r-sun{border-left-color:var(--sun)}
+.r-mix{border-left-color:var(--snow)}
+.r-wet{border-left-color:var(--wet)}
+.r-storm{border-left-color:var(--storm)}
+.r-none{border-left-color:#DDE3E5}
+
+/* ---------- pied ---------- */
+.legend{
+  margin-top:24px;padding-top:14px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--ink-soft)
+}
+.legend h3{font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 8px;color:var(--ink-faint)}
+.legend p{margin:0 0 8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.chip{display:flex;align-items:center;gap:6px;font-size:11.5px;background:var(--card);border:1px solid var(--line);border-radius:2px;padding:3px 8px}
+.swatch{width:10px;height:10px;border-radius:2px}
+.err{background:#F7E9E7;border:1px solid #E0BEB9;color:#7A2C25;padding:12px 14px;border-radius:var(--radius);font-size:13px;margin-bottom:14px}
+
+@media (max-width:720px){
+  .wrap{padding:16px 12px 56px}
+  h1{font-size:25px}
+  .day{
+    grid-template-columns:52px 1fr;
+    grid-template-areas:"date place" "temp temp" "cond wind";
+    gap:8px 12px;padding:11px 12px
+  }
+  .date{grid-area:date}
+  .place{grid-area:place}
+  .temp{grid-area:temp}
+  .cond{grid-area:cond}
+  .wind{grid-area:wind;align-self:center}
+  .date .d{font-size:17px}
+  .place .city{font-size:15.5px}
+  button.refresh{margin-left:0;width:100%;padding:10px}
+  .statusbar{gap:6px 14px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .day{transition:box-shadow .2s ease}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">Famille Potocki · 22 jours · Paris → fjords → Paris</p>
+  <h1>Météo du voyage<span>Norvège et Scandinavie, 1<sup>er</sup> – 22 août 2026</span></h1>
+</header>
+
+<div class="statusbar">
+  <span>Relevé&nbsp;: <b id="updated">chargement…</b></span>
+  <span>Horizon prévision&nbsp;: <b id="horizon">—</b></span>
+  <span>Source&nbsp;: <b>Open-Meteo</b> (MET Norway / DWD)</span>
+  <button class="refresh" id="refresh">Actualiser</button>
+</div>
+
+<div id="error" class="err" hidden></div>
+<div id="days"></div>
+
+<div class="legend">
+  <h3>Lecture</h3>
+  <div class="chips">
+    <span class="chip"><span class="swatch" style="background:#D98A1F"></span>Sec / dégagé</span>
+    <span class="chip"><span class="swatch" style="background:#8FA9B8"></span>Couvert, sans pluie marquée</span>
+    <span class="chip"><span class="swatch" style="background:#2A6C8F"></span>Pluie</span>
+    <span class="chip"><span class="swatch" style="background:#A83C34"></span>Orage ou vent fort</span>
+  </div>
+  <p>La barre de température est à échelle commune de 0 à 30&nbsp;°C&nbsp;: la longueur du trait donne l'amplitude jour/nuit, sa position donne le niveau. Le vent affiché est la vitesse moyenne maximale du jour, la valeur entre parenthèses les rafales. Au-delà de 60&nbsp;km/h de rafales, certains ferries de fjord peuvent être perturbés.</p>
+  <p>Les jours au-delà de l'horizon de prévision (16&nbsp;jours) affichent les <b>normales d'août</b>, en grisé. Ce sont des ordres de grandeur, pas une prévision&nbsp;: ils se remplaceront tout seuls par la vraie prévision au fil des jours, à chaque ouverture de cette page.</p>
+  <p>Les localités de fjord (Hellesylt, Geiranger, Valldal, Romarheim) sont en fond de vallée encaissée&nbsp;: les modèles y lissent le relief, la pluie réelle peut être sensiblement plus forte que la valeur affichée, et le soleil arriver plus tard le matin.</p>
+</div>
+
+</div>
+
+<script>
+const LOCS = [
+  {n:"Hambourg",      lat:53.5511, lon:9.9937,  nx:23, nn:13},
+  {n:"Aarhus",        lat:56.1629, lon:10.2039, nx:21, nn:13},
+  {n:"Hirtshals",     lat:57.5878, lon:9.9578,  nx:19, nn:13},
+  {n:"Voss",          lat:60.6300, lon:6.4200,  nx:20, nn:10},
+  {n:"Hella",         lat:61.2080, lon:6.6180,  nx:19, nn:10},
+  {n:"Loen",          lat:61.8700, lon:6.8500,  nx:19, nn:10},
+  {n:"Hellesylt",     lat:62.0870, lon:6.8700,  nx:18, nn:10},
+  {n:"Geiranger",     lat:62.1010, lon:7.2060,  nx:18, nn:10},
+  {n:"Valldal",       lat:62.3000, lon:7.2600,  nx:18, nn:10},
+  {n:"Åndalsnes",     lat:62.5670, lon:7.6870,  nx:18, nn:11},
+  {n:"Ålesund",       lat:62.4722, lon:6.1495,  nx:17, nn:12},
+  {n:"Måløy",         lat:61.9370, lon:5.1130,  nx:17, nn:12},
+  {n:"Romarheim",     lat:60.7200, lon:5.6000,  nx:19, nn:11},
+  {n:"Bergen",        lat:60.3913, lon:5.3221,  nx:19, nn:12},
+  {n:"Flåm",          lat:60.8630, lon:7.1130,  nx:20, nn:11},
+  {n:"Oslo",          lat:59.9139, lon:10.7522, nx:22, nn:13},
+  {n:"Malmö",         lat:55.6050, lon:13.0038, nx:21, nn:14}
+];
+const H=0,AA=1,HI=2,VO=3,HE=4,LO=5,HS=6,GE=7,VA=8,AN=9,AL=10,MA=11,RO=12,BE=13,FL=14,OS=15,MO=16;
+
+const SEGMENTS = [
+  {t:"Aller — Paris, Hambourg, Jutland", days:[
+    {d:"2026-08-01", loc:H,  note:"Arrivée 17h29 · soirée Alster"},
+    {d:"2026-08-02", loc:AA, note:"Train le matin · Aarhus à partir de 15h08"},
+    {d:"2026-08-03", loc:AA, alt:HI, altLabel:"Hirtshals, embarquement 20h00", note:"Matinée Aarhus · ferry le soir"}
+  ]},
+  {t:"Camping-car — 10 jours dans les fjords", days:[
+    {d:"2026-08-04", loc:VO, alt:BE, altLabel:"Bergen, débarquement 13h00", note:"Nuit à Voss"},
+    {d:"2026-08-05", loc:HE, note:"Vikafjellet · ferry Hella-Vangsnes"},
+    {d:"2026-08-06", loc:LO, note:"Fjærland, Bøyabreen"},
+    {d:"2026-08-07", loc:HS, note:"Loen Skylift · Briksdal"},
+    {d:"2026-08-08", loc:GE, note:"Ferry 08h30 · Geirangerfjord"},
+    {d:"2026-08-09", loc:VA, alt:GE, altLabel:"Geiranger, Dalsnibba le matin", note:"Ferry Eidsdal-Linge"},
+    {d:"2026-08-10", loc:AN, note:"Trollstigen · Rampestreken"},
+    {d:"2026-08-11", loc:AL, note:"Romsdalen · Ålesund Art nouveau"},
+    {d:"2026-08-12", loc:MA, note:"Deux ferries · Sagastad · côte de Vågsøy"},
+    {d:"2026-08-13", loc:RO, note:"Journée de transit, deux ferries"},
+    {d:"2026-08-14", loc:BE, note:"Restitution 9h-11h · après-midi Bergen"}
+  ]},
+  {t:"Bergen, Flåm, Oslo", days:[
+    {d:"2026-08-15", loc:BE, note:"Journée pleine à Bergen"},
+    {d:"2026-08-16", loc:FL, note:"Bergensbanen puis Flåmsbana"},
+    {d:"2026-08-17", loc:OS, alt:FL, altLabel:"Flåm le matin", note:"Arrivée Oslo 19h05"},
+    {d:"2026-08-18", loc:OS, note:"Journée pleine"},
+    {d:"2026-08-19", loc:OS, note:"Journée pleine"}
+  ]},
+  {t:"Retour — Malmö, Hambourg, Paris", days:[
+    {d:"2026-08-20", loc:OS, alt:MO, altLabel:"Malmö en soirée", note:"Matinée Oslo · départ 14h48"},
+    {d:"2026-08-21", loc:H,  note:"Arrivée 05h05 · journée pleine"},
+    {d:"2026-08-22", loc:H,  note:"Matinée puis départ 12h29"}
+  ]}
+];
+
+const WMO = {
+  0:["Ciel dégagé","sun","sun"], 1:["Peu nuageux","sun","sun"], 2:["Éclaircies","suncloud","mix"],
+  3:["Couvert","cloud","mix"], 45:["Brouillard","fog","mix"], 48:["Brouillard givrant","fog","mix"],
+  51:["Bruine faible","drizzle","wet"], 53:["Bruine","drizzle","wet"], 55:["Bruine dense","drizzle","wet"],
+  56:["Bruine verglaçante","drizzle","wet"], 57:["Bruine verglaçante","drizzle","wet"],
+  61:["Pluie faible","rain","wet"], 63:["Pluie","rain","wet"], 65:["Pluie forte","rain","wet"],
+  66:["Pluie verglaçante","rain","wet"], 67:["Pluie verglaçante","rain","wet"],
+  71:["Neige faible","snow","mix"], 73:["Neige","snow","mix"], 75:["Neige forte","snow","mix"],
+  77:["Grains de neige","snow","mix"],
+  80:["Averses éparses","showers","wet"], 81:["Averses","showers","wet"], 82:["Averses fortes","showers","wet"],
+  85:["Averses de neige","snow","mix"], 86:["Averses de neige","snow","mix"],
+  95:["Orage","storm","storm"], 96:["Orage et grêle","storm","storm"], 99:["Orage et grêle","storm","storm"]
+};
+
+const S='stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"';
+const ICONS = {
+  sun:`<svg viewBox="0 0 24 24" style="color:#D98A1F"><circle cx="12" cy="12" r="4.2" ${S}/><g ${S}><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/></g></svg>`,
+  suncloud:`<svg viewBox="0 0 24 24" style="color:#8A9DA6"><circle cx="8.5" cy="8" r="3.2" stroke="#D98A1F" stroke-width="1.6" fill="none"/><g stroke="#D98A1F" stroke-width="1.5" stroke-linecap="round"><path d="M8.5 2.4v1.4M2.9 8h1.4M4.5 4l1 1M12.5 4l-1 1"/></g><path d="M8 19h9a3.1 3.1 0 0 0 .3-6.2A4.4 4.4 0 0 0 9 12.4 3.3 3.3 0 0 0 8 19Z" ${S}/></svg>`,
+  cloud:`<svg viewBox="0 0 24 24" style="color:#7E9099"><path d="M7 18.5h10a3.4 3.4 0 0 0 .3-6.8A4.8 4.8 0 0 0 8.1 11 3.6 3.6 0 0 0 7 18.5Z" ${S}/></svg>`,
+  fog:`<svg viewBox="0 0 24 24" style="color:#7E9099"><path d="M7 14.5h10a3.2 3.2 0 0 0 .3-6.4A4.6 4.6 0 0 0 8.1 7.4 3.4 3.4 0 0 0 7 14.5Z" ${S}/><g ${S}><path d="M4.5 18h15M7 21h11"/></g></svg>`,
+  drizzle:`<svg viewBox="0 0 24 24" style="color:#2A6C8F"><path d="M7 14h10a3.2 3.2 0 0 0 .3-6.4A4.6 4.6 0 0 0 8.1 6.9 3.4 3.4 0 0 0 7 14Z" ${S}/><g ${S}><path d="M9 17.4v1.4M13 17.4v1.4M17 17.4v1.4"/></g></svg>`,
+  rain:`<svg viewBox="0 0 24 24" style="color:#2A6C8F"><path d="M7 13.6h10a3.2 3.2 0 0 0 .3-6.4A4.6 4.6 0 0 0 8.1 6.5 3.4 3.4 0 0 0 7 13.6Z" ${S}/><g ${S}><path d="M9 16.6l-1.1 3.2M13 16.6l-1.1 3.2M17 16.6l-1.1 3.2"/></g></svg>`,
+  showers:`<svg viewBox="0 0 24 24" style="color:#2A6C8F"><circle cx="17.5" cy="5.6" r="2.4" stroke="#D98A1F" stroke-width="1.5" fill="none"/><path d="M6 14h9a3.1 3.1 0 0 0 .3-6.2A4.5 4.5 0 0 0 7.1 6.9 3.4 3.4 0 0 0 6 14Z" ${S}/><g ${S}><path d="M8.5 17l-1 3M12.5 17l-1 3"/></g></svg>`,
+  snow:`<svg viewBox="0 0 24 24" style="color:#6E8B9B"><path d="M7 13.6h10a3.2 3.2 0 0 0 .3-6.4A4.6 4.6 0 0 0 8.1 6.5 3.4 3.4 0 0 0 7 13.6Z" ${S}/><g ${S}><path d="M9 17.5v2M8 18.5h2M14 17.5v2M13 18.5h2"/></g></svg>`,
+  storm:`<svg viewBox="0 0 24 24" style="color:#A83C34"><path d="M7 13h10a3.2 3.2 0 0 0 .3-6.4A4.6 4.6 0 0 0 8.1 5.9 3.4 3.4 0 0 0 7 13Z" ${S}/><path d="M13 15.4l-3.2 3.4h2.6l-1 3" ${S}/></svg>`
+};
+
+const DAYS_FR=["dim","lun","mar","mer","jeu","ven","sam"];
+const TMIN=0, TMAX=30;
+
+function pct(v){return Math.max(0,Math.min(100,((v-TMIN)/(TMAX-TMIN))*100));}
+function fmtNum(v,d=0){return v==null?"—":Number(v).toFixed(d).replace(".",",");}
+
+function render(byLoc, meta){
+  const host=document.getElementById("days");
+  host.innerHTML="";
+  const today=new Date().toISOString().slice(0,10);
+
+  SEGMENTS.forEach((seg,si)=>{
+    const h=document.createElement("div");
+    h.className="segment";
+    h.innerHTML=`<span class="num">0${si+1}</span><h2>${seg.t}</h2><span class="rule"></span>`;
+    host.appendChild(h);
+
+    seg.days.forEach(day=>{
+      const L=LOCS[day.loc];
+      const f=byLoc && byLoc[day.loc] ? byLoc[day.loc][day.d] : null;
+      const dt=new Date(day.d+"T12:00:00");
+      const el=document.createElement("div");
+
+      let regime="none", icon="", cond="Normale d'août", rain="", tmax, tmin, wind="", gust="", windCls="";
+      let forecast=!!f;
+
+      if(f){
+        const w=WMO[f.code]||["—","cloud","mix"];
+        regime=w[2]; icon=ICONS[w[1]]; cond=w[0];
+        tmax=f.tmax; tmin=f.tmin;
+        rain=(f.prcp>0.05? fmtNum(f.prcp,1)+" mm" : "sans pluie")+(f.pprob!=null? " · "+f.pprob+"%" : "");
+        wind=Math.round(f.wind); gust=Math.round(f.gust);
+        if(gust>=60) windCls=" strong";
+        if(gust>=75) regime="storm";
+      }else{
+        tmax=L.nx; tmin=L.nn; icon=ICONS.cloud;
+      }
+
+      el.className="day r-"+regime+(day.d===today?" today":"");
+      el.innerHTML=`
+        <div class="date"><div class="d">${dt.getDate()}/8</div><div class="w">${DAYS_FR[dt.getDay()]}</div></div>
+        <div class="place">
+          <div class="city">${L.n}</div>
+          <div class="note">${day.note}</div>
+          ${day.alt!=null?`<div class="alt">↳ ${day.altLabel} · ${altLine(byLoc,day)}</div>`:""}
+        </div>
+        <div class="temp">
+          <div class="tscale">
+            <div class="track"></div>
+            <div class="range" style="left:${pct(tmin)}%;width:${Math.max(2,pct(tmax)-pct(tmin))}%;${forecast?"":"opacity:.32"}"></div>
+          </div>
+          <div class="tlabels"><span class="min">${fmtNum(tmin,0)}°</span><span class="max">${fmtNum(tmax,0)}°</span></div>
+        </div>
+        <div class="cond" ${forecast?"":'style="opacity:.5"'}>
+          ${icon}
+          <div><div class="txt">${cond}</div><div class="rain">${forecast?rain:'<span class="badge">hors horizon</span>'}</div></div>
+        </div>
+        <div class="wind${windCls}">
+          ${forecast?`<div class="v">${wind}</div><div class="u">km/h</div><div class="g">raf. ${gust}</div>`:'<div class="pending">—</div>'}
+        </div>`;
+      host.appendChild(el);
+    });
+  });
+
+  document.getElementById("updated").textContent=meta.stamp;
+  document.getElementById("horizon").textContent=meta.horizon;
+}
+
+function altLine(byLoc,day){
+  const f=byLoc&&byLoc[day.alt]?byLoc[day.alt][day.d]:null;
+  if(!f) return "normale d'août "+LOCS[day.alt].nx+"° / "+LOCS[day.alt].nn+"°";
+  const w=WMO[f.code]||["—"];
+  return `${Math.round(f.tmax)}° / ${Math.round(f.tmin)}° · ${w[0].toLowerCase()} · vent ${Math.round(f.wind)} km/h`;
+}
+
+async function load(){
+  const btn=document.getElementById("refresh");
+  const err=document.getElementById("error");
+  btn.disabled=true; btn.textContent="Mise à jour…"; err.hidden=true;
+
+  const lats=LOCS.map(l=>l.lat).join(",");
+  const lons=LOCS.map(l=>l.lon).join(",");
+  const url="https://api.open-meteo.com/v1/forecast"
+    +"?latitude="+lats+"&longitude="+lons
+    +"&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,"
+    +"precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max"
+    +"&forecast_days=16&timezone=auto";
+
+  const CACHE="meteo-norvege-2026";
+
+  function apply(j,when,offline){
+    const byLoc=index(j);
+    const last=j[0].daily.time[j[0].daily.time.length-1];
+    const ld=new Date(last+"T12:00:00");
+    render(byLoc,{
+      stamp:new Date(when).toLocaleString("fr-FR",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})
+        +(offline?" · hors connexion":""),
+      horizon:"jusqu'au "+ld.getDate()+" "+ld.toLocaleString("fr-FR",{month:"long"})
+    });
+  }
+  function index(j){
+    return j.map(o=>{
+      const m={}; const d=o.daily;
+      d.time.forEach((t,i)=>{
+        m[t]={code:d.weather_code[i],tmax:d.temperature_2m_max[i],tmin:d.temperature_2m_min[i],
+              prcp:d.precipitation_sum[i],pprob:d.precipitation_probability_max[i],
+              wind:d.wind_speed_10m_max[i],gust:d.wind_gusts_10m_max[i]};
+      });
+      return m;
+    });
+  }
+
+  try{
+    const r=await fetch(url);
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    let j=await r.json();
+    if(!Array.isArray(j)) j=[j];
+    const now=Date.now();
+    apply(j,now,false);
+    try{ localStorage.setItem(CACHE,JSON.stringify({t:now,j:j})); }catch(_){}
+  }catch(e){
+    let cached=null;
+    try{ cached=JSON.parse(localStorage.getItem(CACHE)||"null"); }catch(_){}
+    if(cached && cached.j){
+      apply(cached.j,cached.t,true);
+      err.hidden=false;
+      err.innerHTML="<b>Pas de réseau.</b> Affichage du dernier relevé enregistré sur cet appareil. "
+        +"Relancez « Actualiser » dès que la connexion revient.";
+    }else{
+      render(null,{stamp:"données indisponibles",horizon:"—"});
+      err.hidden=false;
+      err.innerHTML="<b>Prévisions non chargées.</b> Open-Meteo n'a pas répondu ("+e.message+"). "
+        +"Le tableau affiche les normales d'août. Réessayez avec « Actualiser », ou consultez yr.no ville par ville.";
+    }
+  }finally{
+    btn.disabled=false; btn.textContent="Actualiser";
+  }
+}
+
+document.getElementById("refresh").addEventListener("click",load);
+load();
+</script>
+</body>
+</html>
