@@ -69,7 +69,7 @@ button.refresh:focus-visible,a:focus-visible{outline:2px solid var(--sun);outlin
 /* ---------- jour ---------- */
 .day{
   display:grid;
-  grid-template-columns:64px 1fr 132px 108px 92px;
+  grid-template-columns:64px 1fr 70px 108px 92px;
   gap:0 14px;align-items:center;
   background:var(--card);
   border:1px solid var(--line);
@@ -83,20 +83,27 @@ button.refresh:focus-visible,a:focus-visible{outline:2px solid var(--sun);outlin
 .date .w{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-faint);font-weight:600}
 .place .city{font-size:16px;font-weight:650;letter-spacing:-.01em}
 .place .note{font-size:12px;color:var(--ink-soft);margin-top:1px}
-.place .hourly{font-size:11.5px;color:var(--wet);margin-top:2px}
 .place .alt{font-size:11.5px;color:var(--ink-faint);margin-top:2px}
 
-/* barre de température : échelle commune 0–30 °C */
-.temp{position:relative}
-.tscale{position:relative;height:22px}
-.track{position:absolute;left:0;right:0;top:11px;height:2px;background:#E2E8EA}
-.range{
-  position:absolute;top:8px;height:8px;border-radius:4px;
-  background:linear-gradient(90deg,var(--wet),var(--sun))
+/* min/max compact (repli quand il n'y a pas de détail heure par heure) */
+.temp{font-variant-numeric:tabular-nums;font-size:13px;white-space:nowrap}
+.temp .min{color:var(--wet);font-weight:600}
+.temp .max{color:var(--ink);font-weight:700}
+.temp .sep{color:var(--ink-faint);margin:0 3px}
+
+/* frise horaire 0–23h, défilement horizontal */
+.hstrip{
+  grid-column:1/-1;display:flex;gap:2px;
+  overflow-x:auto;margin-top:8px;padding-top:8px;
+  border-top:1px dashed var(--line);
 }
-.tlabels{display:flex;justify-content:space-between;font-size:11.5px;font-variant-numeric:tabular-nums;margin-top:-2px}
-.tlabels .min{color:var(--wet);font-weight:600}
-.tlabels .max{color:var(--ink);font-weight:700}
+.hcol{flex:0 0 32px;text-align:center}
+.hcol .hh{font-size:9.5px;color:var(--ink-faint);font-variant-numeric:tabular-nums}
+.hcol .hi{margin:2px 0}
+.hcol .hi svg{width:18px;height:18px}
+.hcol .ht{font-size:11px;font-weight:650;font-variant-numeric:tabular-nums}
+.hcol-mark{background:#FBEEDC;border-radius:4px}
+.hcol-empty{color:var(--ink-faint);opacity:.5}
 
 .cond{display:flex;align-items:center;gap:8px}
 .cond svg{flex:0 0 26px;width:26px;height:26px}
@@ -139,14 +146,15 @@ button.refresh:focus-visible,a:focus-visible{outline:2px solid var(--sun);outlin
   h1{font-size:25px}
   .day{
     grid-template-columns:52px 1fr;
-    grid-template-areas:"date place" "temp temp" "cond wind";
-    gap:8px 12px;padding:11px 12px
+    grid-template-areas:"date temp" "place place" "cond wind" "hstrip hstrip";
+    gap:6px 12px;padding:11px 12px
   }
   .date{grid-area:date}
   .place{grid-area:place}
-  .temp{grid-area:temp}
+  .temp{grid-area:temp;justify-self:end;align-self:start}
   .cond{grid-area:cond}
   .wind{grid-area:wind;align-self:center}
+  .hstrip{grid-area:hstrip}
   .date .d{font-size:17px}
   .place .city{font-size:15.5px}
   button.refresh{margin-left:0;width:100%;padding:10px}
@@ -183,8 +191,8 @@ button.refresh:focus-visible,a:focus-visible{outline:2px solid var(--sun);outlin
     <span class="chip"><span class="swatch" style="background:#2A6C8F"></span>Pluie</span>
     <span class="chip"><span class="swatch" style="background:#A83C34"></span>Orage ou vent fort</span>
   </div>
-  <p>La barre de température est à échelle commune de 0 à 30&nbsp;°C&nbsp;: la longueur du trait donne l'amplitude jour/nuit, sa position donne le niveau. C'est le min/max sur toute la journée, pas la météo à une heure donnée. Le vent affiché est la vitesse moyenne maximale du jour, la valeur entre parenthèses les rafales. Au-delà de 60&nbsp;km/h de rafales, certains ferries de fjord peuvent être perturbés.</p>
-  <p>La ligne <span style="color:var(--wet);font-weight:600">◷ à Xh</span>, quand elle apparaît, donne la météo prévue précisément à l'heure d'arrivée, de départ ou de ferry indiquée dans la note du jour — plus utile que le min/max journalier pour savoir comment s'habiller à ce moment-là. Elle n'apparaît que si ce jour est dans l'horizon de prévision.</p>
+  <p>Le nombre à côté du nom de ville est le min/max de toute la journée, pas la météo à une heure donnée. Le vent affiché est la vitesse moyenne maximale du jour, la valeur entre parenthèses les rafales. Au-delà de 60&nbsp;km/h de rafales, certains ferries de fjord peuvent être perturbés.</p>
+  <p>La <b>frise heure par heure</b> sous chaque jour (glisser horizontalement pour la parcourir) donne température et condition à chaque heure de 0 à 23h — plus utile que le min/max pour savoir comment s'habiller à un moment précis. La case <span style="background:#FBEEDC;padding:0 4px;border-radius:2px">surlignée</span>, quand il y en a une, correspond à l'heure d'arrivée, de départ ou de ferry indiquée dans la note du jour. La frise n'apparaît que pour les heures couvertes par l'horizon de prévision (16&nbsp;jours) ; les jours plus lointains n'affichent que le min/max des normales.</p>
   <p>Les jours au-delà de l'horizon de prévision (16&nbsp;jours) affichent les <b>normales d'août</b>, en grisé. Ce sont des ordres de grandeur, pas une prévision&nbsp;: ils se remplaceront tout seuls par la vraie prévision au fil des jours, à chaque ouverture de cette page.</p>
   <p>Les localités de fjord (Hellesylt, Geiranger, Valldal, Romarheim) sont en fond de vallée encaissée&nbsp;: les modèles y lissent le relief, la pluie réelle peut être sensiblement plus forte que la valeur affichée, et le soleil arriver plus tard le matin.</p>
 </div>
@@ -274,9 +282,7 @@ const ICONS = {
 };
 
 const DAYS_FR=["dim","lun","mar","mer","jeu","ven","sam"];
-const TMIN=0, TMAX=30;
 
-function pct(v){return Math.max(0,Math.min(100,((v-TMIN)/(TMAX-TMIN))*100));}
 function fmtNum(v,d=0){return v==null?"—":Number(v).toFixed(d).replace(".",",");}
 
 function hourLabel(hm){return String(hm.h).padStart(2,"0")+"h"+String(hm.m).padStart(2,"0");}
@@ -291,6 +297,27 @@ function hourlyAt(byLocHourly,loc,d,hm){
 function hourlyLine(hp){
   const w=WMO[hp.code]||["—"];
   return `${Math.round(hp.temp)}° · ${w[0].toLowerCase()}`+(hp.pprob!=null?" · "+hp.pprob+"%":"");
+}
+
+// frise heure par heure (0-23h) pour la localité principale du jour
+function hourStrip(byLocHourly,loc,d,markHour){
+  const m=byLocHourly && byLocHourly[loc];
+  if(!m) return null;
+  const marked=markHour?Math.max(0,Math.min(23,Math.round(markHour.h+markHour.m/60))):null;
+  let any=false;
+  const cols=[];
+  for(let h=0; h<24; h++){
+    const v=m[d+"T"+String(h).padStart(2,"0")+":00"];
+    const mark=h===marked?" hcol-mark":"";
+    if(v && v.code!=null){
+      any=true;
+      const w=WMO[v.code]||["—","cloud","mix"];
+      cols.push(`<div class="hcol${mark}"><div class="hh">${String(h).padStart(2,"0")}</div><div class="hi">${ICONS[w[1]]}</div><div class="ht">${Math.round(v.temp)}°</div></div>`);
+    }else{
+      cols.push(`<div class="hcol hcol-empty${mark}"><div class="hh">${String(h).padStart(2,"0")}</div><div class="hi">·</div><div class="ht">—</div></div>`);
+    }
+  }
+  return any?cols.join(""):null;
 }
 
 function render(byLoc, byLocHourly, meta){
@@ -325,7 +352,7 @@ function render(byLoc, byLocHourly, meta){
         tmax=L.nx; tmin=L.nn; icon=ICONS.cloud;
       }
 
-      const hp=day.hour?hourlyAt(byLocHourly,day.loc,day.d,day.hour):null;
+      const strip=hourStrip(byLocHourly,day.loc,day.d,day.hour);
 
       el.className="day r-"+regime+(day.d===today?" today":"");
       el.innerHTML=`
@@ -333,23 +360,17 @@ function render(byLoc, byLocHourly, meta){
         <div class="place">
           <div class="city">${L.n}</div>
           <div class="note">${day.note}</div>
-          ${hp?`<div class="hourly">◷ à ${hourLabel(day.hour)} : ${hourlyLine(hp)}</div>`:""}
           ${day.alt!=null?`<div class="alt">↳ ${day.altLabel} · ${altLine(byLoc,byLocHourly,day)}</div>`:""}
         </div>
-        <div class="temp">
-          <div class="tscale">
-            <div class="track"></div>
-            <div class="range" style="left:${pct(tmin)}%;width:${Math.max(2,pct(tmax)-pct(tmin))}%;${forecast?"":"opacity:.32"}"></div>
-          </div>
-          <div class="tlabels"><span class="min">${fmtNum(tmin,0)}°</span><span class="max">${fmtNum(tmax,0)}°</span></div>
-        </div>
+        <div class="temp"><span class="min">${fmtNum(tmin,0)}°</span><span class="sep">/</span><span class="max">${fmtNum(tmax,0)}°</span></div>
         <div class="cond" ${forecast?"":'style="opacity:.5"'}>
           ${icon}
           <div><div class="txt">${cond}</div><div class="rain">${forecast?rain:'<span class="badge">hors horizon</span>'}</div></div>
         </div>
         <div class="wind${windCls}">
           ${forecast?`<div class="v">${wind}</div><div class="u">km/h</div><div class="g">raf. ${gust}</div>`:'<div class="pending">—</div>'}
-        </div>`;
+        </div>
+        ${strip?`<div class="hstrip">${strip}</div>`:""}`;
       host.appendChild(el);
     });
   });
